@@ -1,0 +1,552 @@
+---
+title: "Breast Cancer Prediction"
+author: "Krunal Bharatbhai Parmar- 0818024"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
+subtitle: "AMOD-5250H Data Analytics With R"
+geometry: margin=1in
+biblio-style: apalike
+documentclass: book
+classoption: openany
+link-citations: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(comment=NA, message=FALSE, warning=FALSE)
+```
+
+# Overview
+
+Breast cancer is one of the most frequent diseases in women globally, accounting for the vast majority of new cancer cases and cancer-related deaths, making it a major public health concern in today's society. Classification and data mining technologies are excellent ways to categorize data. Especially in the medical industry, where such procedures are commonly employed for diagnosis and decision-making.
+
+The provided dataset will be prepared and set up. An exploratory data analysis is performed in order to construct a machine learning algorithm capable of predicting whether a breast cancer cell is benign or malignant until a final model is established. The results will be discussed. Finally, the report will include some final observations.
+
+
+
+## Introduction
+
+Cancer that affects women most frequently is breast cancer. Upon early detection and treatment, the patient's 5-year survival rate is 99%; however, that figure plummets to 29% as the disease progresses into a remote stage. Consequently, early detection of "positive cancer cells" is critical; therefore, I utilized R-Studio to analyze the 569 breast cancer cell data provided by the University of Wisconsin. By employing this software, I was able to visually represent the interconnections among ten distinct cellular attributes and investigate the nature of the correlation between radius and cancer cells that are positive by utilizing graphs. Also, I created a predictive model that can detect positive cancer cells based on logistic regression and training original 569 data. Through this research, I derived effective breast cancer predicting model and thoroughly explored big data analysis method and data-mining on R-Studio.
+
+
+A neoplasm is an abnormal mass of tissue, the growth of which exceeds and is uncoordinated with that of the normal tissues, and persists in the same excessive manner after cessation of the stimulus which evoked the change. Cancer can originate almost anywhere in the human body, which is made up of 37.200 billion cells. As these tumors develop, some cancer cells can break off and travel to distant locations in the body through the blood or the lymph system and form new tumors far from the original one. Unlike malignant tumors, benign tumors do not extend into, or invade, adjacent tissues. Breast cancer refers to a pathology in which a tumor develops in the breast tissue.
+Breast cancer is amongst the most prevalent form of cancer in both sexes since 1975 and causes around 411,000 annual fatalities worldwide. It is predicted that the incidence for worldwide cancer will continue to increase, with 23,6 million new cancer cases each year by 2030, corresponding to 68% more cases in comparison to 2012.
+
+Mammography is the most prevalent mass screening instrument for an early detection of breast malignancies because of its sensitivity in recognising breast masses. After detection of suspicious breast masses, a biopsy test procedure would be carried out, such as Fine Needle Aspirates (FNA), that is the method this report focus on. This technique has been showed to be safe, cost-effective, precise and quick. A small drop of viscous fluid is aspired from the breast masses to be analysed under the microscope. Then, a small region of the breast mass cells is photographed in a grey scale image and further analysed using an image analysis program ‘Xcyt’. This program employs a curve-fitting to determine the boundaries of the nuclei from initial points manually set near these margins by a mouse.
+
+The boundaries of the visible cell nuclei were manually placed with a cursor (red spots), ‘Xcyt’ program will after define the nuclei (red circle). The interactive diagnosis process takes about 5 minutes per sample.
+
+This project will make a performance comparison between different machine learning algorithms in order to to assess the correctness in classifying data with respect to efficiency and effectiveness of each algorithm in terms of accuracy, precision, sensitivity and specificity, in order to find the best diagnosis.
+
+Diagnosis in an early stage is essential to the facilitate the subsequent clinical management of patients and increase the survival rate of breast cancer patients.
+
+The main models used and evaluated will be supervised learning models (algorithms that learn from labelled data), which are most used in these types of data analysis.
+
+The utilization of data science and machine learning approaches in medical disciplines proves to be prolific as such approaches may be considered of great assistance in the decision making process of medical practitioners. With a lamentable increasing trend of breast cancer cases, comes also a great deal of data which is of significant use in furthering clinical and medical research, and much more to the application of data science and machine learning in the aforementioned domain.
+
+
+## Aim of the project
+
+The objective of this report is to train machine learning models to predict whether a breast cancer cell is Benign or Malignant. Data will be transformed and its dimension reduced to disclose patterns in the dataset and produce a more robust analysis.
+As previously said, the optimal model will be selected following the resulting accuracy, sensitivity, and f1 score, among other factors. We will later define these metrics.
+We can use machine learning method to extract the features of cancer cell nuclei image and classify them. It would be useful to ascertain whether a given sample appears to be Benign ("B") or Malignant ("M").
+
+The machine learning models that we will applicate in this report attempt to construct a classifier that provides a high accuracy level combined with a low rate of false-negatives (high sensitivity). 
+
+\newpage
+
+## Dataset
+
+Features are computed from a digitized image of a fine needle aspirate (FNA) of a breast mass. Separating plane described  was obtained using Multisurface Method-Tree (MSM-T) [K. P. Bennett, “Decision Tree Construction Via Linear Programming.” Proceedings of the 4th Midwest Artificial Intelligence and Cognitive Science Society, pp. 97-101, 1992], a classification method which uses linear programming to construct a decision tree. Relevant features were selected using an exhaustive search in the space of 1-4 features and 1-3 separating planes.
+
+The present report addresses the Breast Cancer Wisconsin (Diagnostic) DataSet (https://www.kaggle.com/uciml/breast-cancer-wisconsin-data/version/2) created by Dr. William H. Wolberg, physician at the University Of Wisconsin Hospital at Madison, Wisconsin, USA.
+The data used for this research was obtained in 1993 by the University of Wisconsin and it is comprised by the biopsy result of 569 patients in Wisconsin Hospital.
+
+
+• [Wisconsin Breast Cancer Diagnostic Dataset]-  https://www.kaggle.com/uciml/breast-cancer-wisconsin-data/version/2
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, eval = TRUE}
+
+if(!require(dplyr)) install.packages("dplyr", repos = "http://cran.us.r-project.org")
+if(!require(ggplot2)) install.packages("ggplot2", repos = "http://cran.us.r-project.org")
+if(!require(corrplot)) install.packages("recorrplotadr", repos = "http://cran.us.r-project.org")
+if(!require(gridExtra)) install.packages("gridExtra", repos = "http://cran.us.r-project.org")
+if(!require(pROC)) install.packages("pROC", repos = "http://cran.us.r-project.org")
+if(!require(caTools)) install.packages("caTools", repos = "http://cran.us.r-project.org")
+if(!require(caretEnsemble)) install.packages("caretEnsemble", repos = "http://cran.us.r-project.org")
+if(!require(grid)) install.packages("grid", repos = "http://cran.us.r-project.org")
+if(!require(readr)) install.packages("readr", repos = "http://cran.us.r-project.org")
+if(!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+if(!require(caret)) install.packages("caret", repos = "http://cran.us.r-project.org")
+if(!require(ggfortify)) install.packages("ggfortify", repos = "http://cran.us.r-project.org")
+if(!require(glmnet)) install.packages("glmnet", repos = "http://cran.us.r-project.org")
+if(!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
+if(!require(nnet)) install.packages("nnet", repos = "http://cran.us.r-project.org")
+if(!require(funModeling)) install.packages("funModeling", repos = "http://cran.us.r-project.org")
+if(!require(Momocs)) install.packages("Momocs", repos = "http://cran.us.r-project.org")
+library(funModeling)
+library(corrplot)
+
+data <- read.csv("data.csv")
+```
+
+The dataset’s features describe characteristics of the cell nuclei on the image. The features information are specified below:
+
+ - Attribute Information:
+
+    1. ID number
+    2. Diagnosis (M = malignant, B = benign)
+
+ - Ten features were computed for each cell nucleus:
+
+1. radius: mean of distances from center to points on the perimeter
+2. texture: standard deviation of grey-scale values
+3. perimeter
+4. area: Number of pixels inside contour + ½ for pixels on perimeter
+5. smoothness: local variation in radius lengths), , t
+6. compactness: perimeter^2 / area – 1.0 ; this dimensionless number is at a minimum with a circular disk and increases with the                       irregularity of the boundary, but this measure also increases for elongated cell nuclei, which is not indicative of malignancy
+7. concavity: severity of concave portions of the contour
+8. concave points: number of concave portions of the contour
+9. symmetry
+10. fractal dimension: “coastline approximation” - 1; a higher value corresponds a less regular contour and thus to a higher probability of malignancy
+
+The mean, standard error and “worst” or largest (mean of the three largest values) of these features were computed for each image, resulting in 30 variables. From this diagnosis, 357 of the cases were classified as benign tumors and 212 were considered malignant tumors. All cancers and some of the benign masses were histologically confirmed
+
+The column 33 is invalid.
+
+```{r}
+data$diagnosis <- as.factor(data$diagnosis)
+# the 33 column is invalid
+data[,33] <- NULL
+```
+
+# Methods and Analysis
+
+## Data Analysis
+
+By observing our dataset, we found that it contains 569 observations with 32 variables.
+```{r}
+str(data)
+```
+```{r}
+head(data)
+```
+```{r}
+summary(data)
+```
+We have to check if the dataset has any missing value:
+```{r}
+map(data, function(.x) sum(is.na(.x)))
+```
+It results that there aren't NA values.
+\newpage
+By analysing the the dataset we discover that it is a bit unbalanced in its proportions:
+```{r}
+prop.table(table(data$diagnosis))
+```
+Also the plot of proportions confirms that the target variable is slightly unbalanced.
+```{r}
+options(repr.plot.width=4, repr.plot.height=4)
+ggplot(data, aes(x=diagnosis))+
+  geom_bar(fill="blue",alpha=0.5)+theme_bw()+
+  labs(title="Distribution of Diagnosis")
+```
+The most variables of the dataset are normally distributed as show with the below plot:
+
+```{r}
+plot_num(data %>% select(-id), bins=10)
+```
+Now we have to check if the is any correlation between variables as machine learning algorithms assume that the predictor variables are independent from each others.
+
+```{r}
+correlationMatrix <- cor(data[,3:ncol(data)])
+corrplot(correlationMatrix, order = "hclust", tl.cex = 1, addrect = 8)
+```
+As shown by this plot, many variables are highly correlated with each others. Many methods perform better if highly correlated attributes are removed. The Caret R package provides the findCorrelation which will analyze a correlation matrix of your data’s attributes report on attributes that can be removed. Because of much correlation some machine learning models could fail.
+
+```{r}
+# find attributes that are highly corrected (ideally >0.90)
+highlyCorrelated <- findCorrelation(correlationMatrix, cutoff=0.9)
+# print indexes of highly correlated attributes
+print(highlyCorrelated)
+```
+Selecting the right features in our data can mean the difference between mediocre performance with long training times and great performance with short training times.
+
+```{r}
+# Remove correlated variables
+data2 <- data %>%select(-highlyCorrelated)
+# number of columns after removing correlated variables
+ncol(data2)
+```
+The new dataset has loss 10 variables.
+\newpage
+## Modelling Approach
+
+### Modelling
+
+Principal Component Analysis (PCA).
+
+To avoid redundancy and relevancy, we used the function ‘prncomp’ to calculate the Principal Component Analysis (PCA) and select the appropriate components to prevent correlated variables that can be detrimental to our clustering analysis.
+One of the common difficulties in analysis of complex data stems from a large number of variables, which requires a large quantity of memory and computation capacity. This is where PCA comes in. It is a technique to reduce the dimension of the feature space by feature extraction.
+The main concept of PCA is to reduce the dimensionality of a data set consisting of many variables correlated with each other, either severely or lightly, while retaining the variation present in the dataset, up to the utmost extent. The same is done by transforming the variables to a new set of variables, which are known as the principal components (or simply, the PCs) and are orthogonal, ordered such that the retention of variation present in the original variables diminish as we progress down in the order.
+
+
+```{r}
+pca_res_data <- prcomp(data[,3:ncol(data)], center = TRUE, scale = TRUE)
+plot(pca_res_data, type="l")
+```
+```{r}
+summary(pca_res_data)
+```
+As we can observe from the above table, the two first components explains the 0.6324 of the variance. We need 10 principal components to explain more than 0.95 of the variance and 17 to explain more than 0.99.
+
+```{r}
+pca_res_data2 <- prcomp(data2[,3:ncol(data2)], center = TRUE, scale = TRUE)
+plot(pca_res_data2, type="l")
+```
+```{r}
+summary(pca_res_data2)
+```
+The above table shows that 95% of the variance is explained with 8 PC's in the transformed dataset data2.
+```{r}
+pca_df <- as.data.frame(pca_res_data2$x)
+ggplot(pca_df, aes(x=PC1, y=PC2, col=data$diagnosis)) + geom_point(alpha=0.5)
+```
+The data of the first 2 components can be easly separated into two classes. This is caused by the fact that the variance explained by these components is not large. The data can be easly separated.
+
+```{r}
+g_pc1 <- ggplot(pca_df, aes(x=PC1, fill=data$diagnosis)) + geom_density(alpha=0.25)  
+g_pc2 <- ggplot(pca_df, aes(x=PC2, fill=data$diagnosis)) + geom_density(alpha=0.25)  
+grid.arrange(g_pc1, g_pc2, ncol=2)
+```
+\newpage
+Linear Discriminant Analysis (LDA)
+
+Another approach is to use the Linear Discriminant Analysis (LDA) instead of PCA. LDA takes in consideration the various courses and could get improved results.
+The particularity of LDA is that it models the distribution of predictors separately in each of the response classes, and then it employs Bayes’ theorem to estimate the probability. It is essential to know that LDA presupposes a normal distribution for each class, a class-specific mean, and a common variance.
+
+
+```{r}
+lda_res_data <- MASS::lda(diagnosis~., data = data, center = TRUE, scale = TRUE) 
+lda_res_data
+
+#Data frame of the LDA for visualization purposes
+lda_df_predict <- predict(lda_res_data, data)$x %>% as.data.frame() %>% cbind(diagnosis=data$diagnosis)
+```
+
+```{r}
+ggplot(lda_df_predict, aes(x=LD1, fill=diagnosis)) + geom_density(alpha=0.5)
+```
+\newpage
+### Model creation
+
+We are going to get a training and a testing set to use when building some models. We split the modified dataset into Train (80%) and Test (20%), in order to predict is whether a cancer cell is Benign or Malignant, by building machine learning classification models.
+
+```{r}
+set.seed(1815)
+data3 <- cbind (diagnosis=data$diagnosis, data2)
+data_sampling_index <- createDataPartition(data$diagnosis, times=1, p=0.8, list = FALSE)
+train_data <- data3[data_sampling_index, ]
+test_data <- data3[-data_sampling_index, ]
+
+
+fitControl <- trainControl(method="cv",    
+                           number = 15,    
+                           classProbs = TRUE,
+                           summaryFunction = twoClassSummary)
+```
+
+\newpage
+### Naive Bayes Model
+
+The Naive Bayesian classifier is based on Bayes’ theorem with the independence assumptions between predictors. A Naive Bayesian model is easy to build, with no complicated iterative parameter estimation which makes it particularly useful for very large datasets. Bayes theorem provides a way of calculating the posterior probability, P(c|x), from P(c), P(x), and P(x|c). Naive Bayes classifier assume that the effect of the value of a predictor (x) on a given class (c) is independent of the values of other predictors. This assumption is called class conditional independence.
+
+```{r}
+model_naiveb <- train(diagnosis~.,
+                      train_data,
+                      method="nb",
+                      metric="ROC",
+                      preProcess=c('center', 'scale'), #in order to normalize the data
+                      trace=FALSE,
+                      trControl=fitControl)
+
+prediction_naiveb <- predict(model_naiveb, test_data)
+confusionmatrix_naiveb <- confusionMatrix(prediction_naiveb, test_data$diagnosis, positive = "M")
+confusionmatrix_naiveb
+```
+We can note the accuracy with such model.
+We will later describe better these metrics, where:
+Sensitivity (recall) represent the true positive rate: the proportions of actual positives correctly identified.
+Specificity is the true negative rate: the proportion of actual negatives correctly identified.
+Accuracy is the general score of the classifier model performance as it is the ratio of how many samples are correctly classified to all samples.
+F1 score: the harmonic mean of precision and sensitivity.
+Accuracy and F1 score would be used to compare the result with the benchmark model.
+Precision: the number of correct positive results divided by the number of all positive results returned by the classifier.
+
+The most important variables that permit the best prediction and contribute the most to the model are the following:
+
+```{r}
+plot(varImp(model_naiveb), top=10, main="Top variables- Naive Bayes")
+```
+
+\newpage
+### Logistic Regression Model 
+
+Logistic Regression is widly used for binary classification like (0,1). The binary logistic model is used to estimate the probability of a binary response based on one or more predictor (or independent) variables (features).
+
+```{r}
+model_logreg<- train(diagnosis ~., data = train_data, method = "glm",
+                     metric = "ROC",
+                     
+                     preProcess = c("scale", "center"),  # in order to normalize the data
+                     trControl= fitControl)
+prediction_logreg<- predict(model_logreg, test_data)
+
+# Check results
+confusionmatrix_logreg <- confusionMatrix(prediction_logreg, test_data$diagnosis, positive = "M")
+confusionmatrix_logreg
+
+```
+The most important variables that permit the best prediction and contribute the most to the model are the following:
+
+```{r}
+plot(varImp(model_logreg), top=10, main="Top variables - Log Regr")
+```
+
+\newpage
+### Random Forest Model
+
+Random forests are a very popular machine learning approach that addresses the shortcomings of decision trees using a clever idea. The goal is to improve prediction performance and reduce instability by averaging multiple decision trees (a forest of trees constructed with randomness).
+Random forest is another ensemble method based on decision trees. It split data into sub-samples, trains decision tree classifiers on each sub-sample and averages prediction of each classifier. Splitting dataset causes higher bias but it is compensated by large 
+decrease in variance.
+Random Forest is a supervised learning algorithm and it is flexible, easy to use machine learning algorithm that produces, even without hyper-parameter tuning, a great result most of the time. It is also one of the most used algorithms, because of it’s simplicity and the fact that it can be used for both classification and regression tasks.
+Random forest builds multiple decision trees and merges them together to get a more accurate and stable prediction.
+
+```{r}
+model_randomforest <- train(diagnosis~.,
+                            train_data,
+                            method="rf",  #also recommended ranger, because it is a lot faster than original randomForest (rf)
+                            metric="ROC",
+                            #tuneLength=10,
+                            #tuneGrid = expand.grid(mtry = c(2, 3, 6)),
+                            preProcess = c('center', 'scale'),
+                            trControl=fitControl)
+
+prediction_randomforest <- predict(model_randomforest, test_data)
+
+#Check results
+confusionmatrix_randomforest <- confusionMatrix(prediction_randomforest, test_data$diagnosis, positive = "M")
+confusionmatrix_randomforest
+```
+
+```{r}
+plot(varImp(model_randomforest), top=10, main="Top variables- Random Forest")
+```
+
+\newpage
+### K Nearest Neighbor (KNN) Model
+
+KNN (K-Nearest Neighbors) is one of many (supervised learning) algorithms used in data mining and machine learning, it’s a classifier algorithm where the learning is based “how similar” is a data from other. K nearest neighbors is a simple algorithm that stores all available cases and classifies new cases based on a similarity measure (e.g., distance functions).
+
+```{r}
+model_knn <- train(diagnosis~.,
+                   train_data,
+                   method="knn",
+                   metric="ROC",
+                   preProcess = c('center', 'scale'),
+                   tuneLength=10, #The tuneLength parameter tells the algorithm to try different default values for the main parameter
+                   #In this case we used 10 default values
+                   trControl=fitControl)
+
+prediction_knn <- predict(model_knn, test_data)
+confusionmatrix_knn <- confusionMatrix(prediction_knn, test_data$diagnosis, positive = "M")
+confusionmatrix_knn
+```
+
+The most important variables that permit the best prediction and contribute the most to the model are the following:
+
+```{r}
+plot(varImp(model_knn), top=10, main="Top variables - KNN")
+```
+
+\newpage
+### Neural Network with PCA Model
+
+Artificial Neural Networks (NN) are a types of mathematical algorithms originatingin the simulation of networks of biological neurons.
+An artificial Neural Network consists of nodes (called neurons) and edges (calledsynapses). Input data is transmitted through the weighted synapses to the neuronswhere calculations are processed and then either sent to further neurons or representthe output.
+
+Neural Networks take in the weights of connections between neurons . The weights are balanced, learning data point in the wake of learning data point . When all weights are trained, the neural network can be utilized to predict the class or a quantity, if there should arise an occurrence of regression of a new input data point. With Neural networks, extremely complex models can be trained and they can be utilized as a kind of black box, without playing out an unpredictable complex feature engineering before training the model. Joined with the “deep approach” even more unpredictable models can be picked up to realize new possibilities. 
+```{r}
+model_nnet_pca <- train(diagnosis~.,
+                        train_data,
+                        method="nnet",
+                        metric="ROC",
+                        preProcess=c('center', 'scale', 'pca'),
+                        tuneLength=10,
+                        trace=FALSE,
+                        trControl=fitControl)
+
+prediction_nnet_pca <- predict(model_nnet_pca, test_data)
+confusionmatrix_nnet_pca <- confusionMatrix(prediction_nnet_pca, test_data$diagnosis, positive = "M")
+confusionmatrix_nnet_pca
+
+
+```
+The most important variables that permit the best prediction and contribute the most to the model are the following:
+
+```{r}
+plot(varImp(model_nnet_pca), top=8, main="Top variables - NNET PCA")
+```
+
+\newpage
+### Neural Network with LDA Model
+
+
+We are going to create a training and test set of LDA data created in previous chapters:
+
+```{r}
+train_data_lda <- lda_df_predict[data_sampling_index, ]
+test_data_lda <- lda_df_predict[-data_sampling_index, ]
+```
+
+```{r}
+model_nnet_lda <- train(diagnosis~.,
+                        train_data_lda,
+                        method="nnet",
+                        metric="ROC",
+                        preProcess=c('center', 'scale'),
+                        tuneLength=10,
+                        trace=FALSE,
+                        trControl=fitControl)
+
+prediction_nnet_lda <- predict(model_nnet_lda, test_data_lda)
+confusionmatrix_nnet_lda <- confusionMatrix(prediction_nnet_lda, test_data_lda$diagnosis, positive = "M")
+confusionmatrix_nnet_lda
+```
+# Results
+
+We can now compare and evaluate the results obtained with the above calculations.
+```{r}
+models_list <- list(Naive_Bayes=model_naiveb, 
+                    Logistic_regr=model_logreg,
+                    Random_Forest=model_randomforest,
+                    KNN=model_knn,
+                    Neural_PCA=model_nnet_pca,
+                    Neural_LDA=model_nnet_lda)                                     
+models_results <- resamples(models_list)
+
+summary(models_results)
+```
+As we can observe from the following plot, two models, Naive_bayes and Logistic_regr have great variability, depending of the processed sample :
+```{r}
+bwplot(models_results, metric="ROC")
+```
+
+The Neural Network LDA model achieve a great auc (Area Under the ROC Curve) with some variability. The ROC (Receiver Operating characteristic Curve is a graph showing the performance of a classification model at all classification thresholds) metric measure the auc of the roc curve of each model. This metric is independent of any threshold. Prediction classes are obtained by default with a threshold of 0.5 which could not be the best with an unbalanced dataset like this.
+
+```{r}
+confusionmatrix_list <- list(
+  Naive_Bayes=confusionmatrix_naiveb, 
+  Logistic_regr=confusionmatrix_logreg,
+  Random_Forest=confusionmatrix_randomforest,
+  KNN=confusionmatrix_knn,
+  Neural_PCA=confusionmatrix_nnet_pca,
+  Neural_LDA=confusionmatrix_nnet_lda)   
+confusionmatrix_list_results <- sapply(confusionmatrix_list, function(x) x$byClass)
+confusionmatrix_list_results %>% knitr::kable()
+```
+
+
+The analysis resulted in several key findings regarding the performance of various machine learning models in classifying breast cancer cells as benign or malignant. Here's a breakdown:
+
+Model Performance:
+
+Neural Network with LDA: Achieved the highest Area Under the ROC Curve (AUC), indicating excellent overall classification performance. It also had a high F1 score (0.988), signifying a good balance between precision and recall.
+Logistic Regression: Showed high recall (1.000) ensuring all malignant cases were correctly identified, but exhibited high variability depending on the processed sample.
+Other Models: Naive Bayes, Random Forest, KNN, and Neural Network with PCA all displayed varying degrees of accuracy and sensitivity.
+Key Metrics:
+
+F1 Score: Neural Network with LDA achieved the best F1 score (0.988), indicating a well-balanced model in terms of precision and recall.
+Sensitivity: Both Neural Network with LDA (0.976) and Logistic Regression (1.000) achieved high sensitivity, effectively identifying malignant cases.
+Balanced Accuracy: Neural Network with LDA showcased the best balanced accuracy (0.988), signifying its effectiveness across both benign and malignant classifications.
+
+
+# Discussion
+
+We will now describe the metrics that we will compare in this section.
+
+Accuracy is our starting point. It is the number of correct predictions made divided by the total number of predictions made, multiplied by 100 to turn it into a percentage.
+
+Precision is the number of True Positives divided by the number of True Positives and False Positives. Put another way, it is the number of positive predictions divided by the total number of positive class values predicted. It is also called the Positive Predictive Value (PPV). A low precision can also indicate a large number of False Positives.
+
+Recall (Sensitivity) is the number of True Positives divided by the number of True Positives and the number of False Negatives. Put another way it is the number of positive predictions divided by the number of positive class values in the test data. It is also called Sensitivity or the True Positive Rate. Recall can be thought of as a measure of a classifiers completeness. A low recall indicates many False Negatives.
+
+The F1 Score is the 2 x ((precision x recall) / (precision + recall)). It is also called the F Score or the F Measure. Put another way, the F1 score conveys the balance between the precision and the recall.
+
+The Neural Network with LDA model produced the greatest sensitivity findings, notably in identifying breast cancer malignancies, and also had an impressive F1 score. This hybrid strategy, which combined Neural Networks with dimensionality reduction using LDA, outperformed expectations in a variety of parameters, including sensitivity, F1 score, and balanced accuracy.
+
+Specifically, the Neural Network with LDA model demonstrated its ability to properly identify malignant cases, demonstrating its potential as a powerful tool for breast cancer diagnosis. This model outperformed other techniques by combining the strength of neural networks with LDA's dimensionality reduction capabilities.
+
+While Logistic Regression was excellent at detecting malignant patients with high recall rates, its overall performance fluctuated, indicating possible limits in wider classification accuracy.
+
+Other models, such as Naive Bayes and Random Forest, performed well but lacked the full features of the Neural Network with LDA model. This emphasizes the need of picking algorithms that are customized to the unique difficulties and goals of the activity at hand. In this scenario, the Neural Network with LDA model emerged as the preferable option, demonstrating its usefulness and promise to further breast cancer detection and classification efforts.
+
+
+
+```{r}
+confusionmatrix_results_max <- apply(confusionmatrix_list_results, 1, which.is.max)
+
+output_report <- data.frame(metric=names(confusionmatrix_results_max), 
+                            best_model=colnames(confusionmatrix_list_results)[confusionmatrix_results_max],
+                            value=mapply(function(x,y) {confusionmatrix_list_results[x,y]}, 
+                                         names(confusionmatrix_results_max), 
+                                         confusionmatrix_results_max))
+rownames(output_report) <- NULL
+output_report
+```
+
+# Conclusion
+
+This study treats the Wisconsin Madison Breast Cancer diagnosis problem as a pattern classification problem. In this report we investigated several machine learning model and we selected the optimal  model by selecting a high accuracy level combinated with a low rate of false-negatives (the means that the metric is high sensitivity).
+
+The Neural Netword with LDA model had the optimal results for F1 (0.9879518), Sensitivity (0.9761905) and Balanced Accuracy (0.9880952)
+
+This study explored the application of machine learning models for breast cancer cell classification. The analysis revealed that the Neural Network with LDA model achieved the best results in terms of F1 score, sensitivity, and balanced accuracy. This suggests its potential as a valuable tool for accurate cancer cell classification, but it's important to note that these findings are based on a specific dataset.  Further research on larger and more diverse datasets is recommended for broader validation.
+
+**Limitations:**
+
+The research in this paper was based on the Wisconsin Breast Cancer Dataset, which, although widely used, may not completely capture the intricacies of real-world circumstances. This constraint advises care when generalizing the results outside the boundaries of the dataset used. Furthermore, the research focused on a small number of machine learning models, thus disregarding other methods that may provide better results. As a result, the findings may not accurately reflect machine learning's skills in breast cancer detection and categorization.
+
+
+**Future Work:**
+
+To overcome the limitations highlighted above and strengthen the findings, future research should aim to verify the results on a larger and more varied breast cancer dataset. This will improve the suggested models' generalizability and reliability across diverse demographics and therapeutic situations. Furthermore, investigating the use of sophisticated deep learning architectures shows potential for improving accuracy and sensitivity in breast cancer detection. These complex neural network architectures may find intricate patterns and correlations in the data, improving the models' prediction ability.
+
+Furthermore, there is a compelling need to investigate the interpretability of the Neural Network using LDA model. Understanding the decision-making processes that underpin this hybrid approach is critical for building confidence and acceptability within the medical community. Clinicians can make better judgments about patient care and treatment techniques if they understand the elements that influence the model's predictions. Future research should emphasize explaining the interpretability of these complicated machine learning models, opening the road for their use in clinical practice.
+
+
+# References 
+
+
+* Hong, K., Yim, K., & Kim, K. (2024, March 4). Breast Cancer Cell Data Analysis and visualization using R. Journal of Student Research. https://www.jsr.org/hs/index.php/path/article/view/3524 
+* Wisconsin Breast Cancer. Bem vindo. (n.d.). https://www.dcc.fc.up.pt/~ltorgo/Regression/wbc.html 
+* RPubs. (n.d.). https://rpubs.com/Aakansha_garg/aakansha_cancer 
+* Ryckel, F. de. (2017, November 19). Machine learning with R. t. https://fderyckel.github.io/machinelearningwithr/case-study-wisconsin-breast-cancer.html 
+* Sachinudgam. (2022, February 1). Breast cancer analysis in R programming. Kaggle. https://www.kaggle.com/code/sachinudgam/breast-cancer-analysis-in-r-programming 
+* Survival analysis method with R using breast cancer dataset. (n.d.). https://www.mathstat.dal.ca/~tsusko/honours-theses/wenhui-wang.pdf 
+* American Cancer Society. (2022, March 1). Survival Rates for Breast Cancer. American Cancer Society.https://www.cancer.org/cancer/breast-cancer/understanding-a-breast-cancer-diagnosis/breast-cancer-survival-rates.html
+* UCI Machine Learning Repository. (1995, November 1). UCI Machine Learning Repository: Breast Cancer Wisconsin (Diagnostic) Data Set [Dataset]. The University of Wisconsin Clinical Sciences Center and Computer Science Dept.https://archive.ics.uci.edu/ml/datasets/breast+cancer+wisconsin+(diagnostic)
+* Jonathan Gelford, Martin Goros, Brian Hernandez, and Alex Bokoro. (July 2018). A System for an Accountable Data Analysis Process in R. Retrieved August,10,2022 from https://journal.r-project.org/archive/2018/RJ-2018-001/RJ-2018-001.pdf
+* UCLA Statistical Methods and Data Analytics. (n.d.). Logit Regression | R Data Analysis Examples. Retrieved August 22, 2022, from https://stats.oarc.ucla.edu/r/dae/logit-regression/
+* MeDiscovery. (2020, August 4). AUC-ROC. BioinformaticsAndMe. https://bioinformaticsandme.tistory.com/328
+* KOSIS. (1999–2019). KOSIS-24 Cancer Patients Statistics [Dataset]. Korean Statistical Office. https://kosis.kr/statHtml/statHtml.do?orgId=117&tblId=DT_117N_A00023&conn_path=I3
+
+
+
